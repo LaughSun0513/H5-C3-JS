@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>多只小羊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .stage {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 183, 255, 0.767);
+        }
+        
+        .sheep {
+            width: 164px;
+            height: 122px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: url('./sheep.png') 0 0 no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div class='stage'>
+    </div>
+</body>
+
+</html>
+<script>
+    let initData = {
+            stage: document.querySelector('.stage'), //画布
+            moveLength: 0, //雪碧图移动的距离
+            slowOrfast: 50, //协调的频率
+            speed: 10, //走的长度
+            count: 10 //创建10只羊
+        }
+        //小羊工厂
+    function Sheep(data) {
+        this.a = null; //定时器1 控制雪碧图的移动
+        this.b = null; //定时器2 控制小羊的走动
+        this.init = () => {
+                this.sheep = document.createElement('div');
+                this.stage = data.stage;
+                this.stage.appendChild(this.sheep); //创建一只羊
+                this.sheep.className = 'sheep';
+                this.sheepWidth = this.sheep.offsetWidth; //羊的宽
+                this.moveLength = data.moveLength; //计算雪碧图移动的偏移量
+                this.slowOrfast = Math.floor(Math.random() * data.slowOrfast) + 50; //频率在50-100之间
+                this.speed = data.speed; //走的长度
+                this.step = 0; //每一步的距离
+                this.top = 0;
+                this.sheepHeight = this.sheep.offsetHeight; //羊的高;
+
+                this.sheepMove(); //小羊运动
+                this.catchSheep(); //可以抓当前的羊
+
+
+            }
+            //雪碧图的移动，原地移动
+        this.sheepMove = () => {
+                this.a = setInterval(() => {
+                    this.moveLength += this.sheepWidth;
+                    if (this.moveLength == this.sheepWidth * 8) {
+                        this.moveLength = 0;
+                    }
+                    this.sheep.style.backgroundPosition = `${-this.moveLength}px 0px`;
+                }, this.slowOrfast);
+
+                this.sheepWalk(); //小羊往左走
+            }
+            //小羊走路，屏幕移动
+        this.sheepWalk = () => {
+            this.b = setInterval(() => {
+                this.step = this.sheep.offsetLeft - this.speed;
+                if (this.step < -this.sheepWidth) {
+                    clearInterval(this.a);
+                    clearInterval(this.b);
+                }
+                this.sheep.style.left = this.step + 'px'
+            }, this.slowOrfast)
+        }
+        this.catchSheep = () => {
+            //可以抓住一只小羊
+            this.sheep.addEventListener('mousedown', this.mousedown);
+            this.sheep.addEventListener('mouseup', this.mouseup);
+        }
+        this.mousedown = (e) => {
+            this.top = -122;
+            this.speed = 0;
+            //当前点击的横纵坐标
+            this.sheep.x = e.pageX;
+            this.sheep.y = e.pagey;
+
+            this.sheep.addEventListener('mousemove', this.mousemove);
+        }
+        this.mousemove = (ev) => {
+            this.sheep.style.left = this.sheep.offsetLeft + (ev.pageX - this.sheep.x) + 'px';
+            this.sheep.style.top = this.sheep.offsetTop + (ev.pageY - this.sheep.y) + 'px';
+            this.sheep.x = ev.pageX;
+            this.sheep.y = ev.pageY;
+        }
+        this.mouseup = (eve) => {
+            this.top = 0;
+            this.speed = data.speed;
+            document.removeEventListener('mousemove', this.mousemove);
+        }
+    }
+
+
+
+
+    //利用构造函数来创建多个小羊
+    (function(initData) {
+        let createSheepTime = setInterval(() => {
+            if (initData.stage.children.length >= initData.count) { //如果超过预定的10只羊，就不生产了
+                clearInterval(createSheepTime);
+            } else {
+                let newSheep = new Sheep(initData);
+                newSheep.init();
+            }
+        }, 1000)
+    })(initData)
+</script>

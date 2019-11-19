@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>一只小羊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .stage {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 183, 255, 0.767);
+        }
+        
+        .sheep {
+            width: 164px;
+            height: 122px;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: url('./sheep.png') 0 0 no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div class='stage'>
+        <div class="sheep"></div>
+    </div>
+</body>
+
+</html>
+<script>
+    let sheep = document.querySelector('.sheep');
+    let moveLength = 0; //雪碧图移动的偏移量
+
+    let sheepMove = setInterval(() => {
+        moveLength += 164; //每次雪碧图移动164的距离
+        if (moveLength == 164 * 8) { //当等于整张雪碧图时，归0
+            moveLength = 0;
+        }
+        sheep.style.backgroundPosition = `${-moveLength}px 0px`;
+    }, 100);
+
+    let speed = 10; //走的长度
+    let sheepWalk = setInterval(() => {
+        let step = sheep.offsetLeft - speed; //每一步的距离
+        if (step < -164) {
+            clearInterval(sheepMove);
+            clearInterval(sheeoWalk);
+        }
+        sheep.style.left = step + 'px';
+    }, 100);
+</script>
